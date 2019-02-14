@@ -9,6 +9,10 @@ import {{ cookiecutter.project_slug }}
 
 logger = logging.getLogger(__name__)
 
+TSV2NICECXMODULE = 'ndexutil.tsv.tsv2nicecx2'
+
+LOG_FORMAT = "%(asctime)-15s %(levelname)s %(relativeCreated)dms " \
+             "%(filename)s::%(funcName)s():%(lineno)d %(message)s"
 
 def _parse_arguments(desc, args):
     """
@@ -25,21 +29,59 @@ def _parse_arguments(desc, args):
                                           'NDEx credentials which means'
                                           'configuration under [XXX] will be'
                                           'used '
-                                          '(default {{ cookiecutter.project_slug }})',
+                                          '(default '
+                                          '{{ cookiecutter.project_slug }})',
                         default='{{ cookiecutter.project_slug }}')
     parser.add_argument('--logconf', default=None,
-                        help='Path to python logging configuration file in this'
-                             'format: https://docs.python.org/3/library/logging.config.html#logging-config-fileformat '
-                             '(default None)')
+                        help='Path to python logging configuration file in '
+                             'this format: https://docs.python.org/3/library/'
+                             'logging.config.html#logging-config-fileformat '
+                             'Setting this overrides -v parameter which uses '
+                             ' default logger. (default None)')
+
     parser.add_argument('--conf', help='Configuration file to load '
-                                       '(default ~/' + NDExUtilConfig.CONFIG_FILE)
+                                       '(default ~/' +
+                                       NDExUtilConfig.CONFIG_FILE)
+    parser.add_argument('--verbose', '-v', action='count', default=0,
+                        help='Increases verbosity of logger to standard '
+                             'error for log messages in this module and'
+                             'in ' + TSV2NICECXMODULE + '. Messages are '
+                             'output at these python logging levels '
+                             '-v = ERROR, -vv = WARNING, -vvv = INFO, '
+                             '-vvvv = DEBUG, -vvvvv = NOTSET (default no '
+                             'logging)')
     parser.add_argument('--version', action='version',
-                        version=('%(prog)s ' + {{ cookiecutter.project_slug }}.__version__))
+                        version=('%(prog)s ' +
+                                 {{ cookiecutter.project_slug }}.__version__))
 
     return parser.parse_args(args)
 
 
-class NDExContentLoader(object):
+def _setup_logging(args):
+    """
+    Sets up logging based on parsed command line arguments.
+    If args.logconf is set use that configuration otherwise look
+    at args.verbose and set logging for this module and the one
+    in ndexutil specified by TSV2NICECXMODULE constant
+    :param args: parsed command line arguments from argparse
+    :raises AttributeError: If args is None or args.logconf is None
+    :return: None
+    """
+
+    if args.logconf is None:
+        level = (50 - (10 * args.verbose))
+        logging.basicConfig(format=LOG_FORMAT,
+                            level=level)
+        logging.getLogger(TSV2NICECXMODULE).setLevel(level)
+        logger.setLevel(level)
+        return
+
+    # logconf was set use that file
+    logging.config.fileConfig(args.logconf,
+                              disable_existing_loggers=False)
+
+
+class {{ cookiecutter.loader_class_name }}(object):
     """
     Class to load content
     """
@@ -48,18 +90,22 @@ class NDExContentLoader(object):
 
         :param args:
         """
-        pass
+        self._conf_file = args.conf
+        self._profile = args.profile
+        self._user = None
+        self._pass = None
+        self._server = None
 
-    def _parse_config(self, profile, conf_file):
+    def _parse_config(self):
             """
             Parses config
             :return:
             """
-            ncon = NDExUtilConfig(conf_file)
+            ncon = NDExUtilConfig(conf_file=self._conf_file)
             con = ncon.get_config()
-            self._user = con.get(profile, NDExUtilConfig.USER)
-            self._pass = con.get(profile, NDExUtilConfig.PASSWORD)
-            self._server = con.get(profile, NDExUtilConfig.SERVER)
+            self._user = con.get(self._profile, NDExUtilConfig.USER)
+            self._pass = con.get(self._profile, NDExUtilConfig.PASSWORD)
+            self._server = con.get(self._profile, NDExUtilConfig.SERVER)
 
 
     def run(self):
@@ -68,6 +114,7 @@ class NDExContentLoader(object):
         :param theargs:
         :return:
         """
+        self._parse_config()
         return 0
 
 def main(args):
@@ -81,21 +128,37 @@ def main(args):
 
     Loads {{ cookiecutter.project_name }} data into NDEx (http://ndexbio.org).
     
+    To connect to NDEx server a configuration file must be passed
+    into --conf parameter. If --conf is unset the configuration 
+    the path ~/{confname} is examined. 
+         
+    The configuration file should be formatted as follows:
+         
+    [<value in --profile (default ncipid)>]
+         
+    {user} = <NDEx username>
+    {password} = <NDEx password>
+    {server} = <NDEx server(omit http) ie public.ndexbio.org>
     
-    """.format(version={{ cookiecutter.project_slug }}.__version__)
+    
+    """.format(confname=NDExUtilConfig.CONFIG_FILE,
+               user=NDExUtilConfig.USER,
+               password=NDExUtilConfig.PASSWORD,
+               server=NDExUtilConfig.SERVER,
+               version={{ cookiecutter.project_slug }}.__version__)
     theargs = _parse_arguments(desc, args[1:])
     theargs.program = args[0]
     theargs.version = {{ cookiecutter.project_slug }}.__version__
 
     try:
-        if theargs.logconf is not None:
-            logging.config.fileConfig(theargs.logconf)
-        return run(theargs)
+        _setup_logging(theargs)
+        loader = {{ cookiecutter.loader_class_name }}(theargs)
+        return loader.run()
     except Exception as e:
         logger.exception('Caught exception')
+        return 2
     finally:
         logging.shutdown()
-    return 0
 
 
 if __name__ == '__main__':  # pragma: no cover

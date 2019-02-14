@@ -5,6 +5,7 @@
     "project_name": "Python Boilerplate",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
     "loader_name": "load{{ cookiecutter.project_slug }}",
+    "loader_class_name": "NDEx{{ cookiecutter.project_slug.replace('_','').capitalize() }}Loader",
     "project_short_description": "Python Boilerplate contains all the boilerplate you need to create a Python NDEx Content Loader package.",
     "pypi_username": "{{ cookiecutter.github_username }}",
     "version": "0.1.0",
