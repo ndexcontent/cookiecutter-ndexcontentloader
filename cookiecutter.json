@@ -1,9 +1,9 @@
 {
-    "full_name": "Audrey Roy Greenfeld",
-    "email": "audreyr@example.com",
-    "github_username": "audreyr",
+    "full_name": "NDEx Bio",
+    "email": "contact@ndexbio.org",
+    "github_username": "ndexbiocontentloader",
     "docker_owner": "{{cookiecutter.github_username}}",
-    "project_name": "Python Boilerplate",
+    "project_name": "NDEx Content Loader",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
     "loader_name": "load{{ cookiecutter.project_slug }}",
     "loader_class_name": "NDEx{{ cookiecutter.project_slug.replace('_','').capitalize() }}Loader",
