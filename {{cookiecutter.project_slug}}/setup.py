@@ -2,8 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """The setup script."""
-
+import os
+import re
 from setuptools import setup, find_packages
+
+
+with open(os.path.join('{{ cookiecutter.project_slug }}', '__init__.py')) as ver_file:
+    for line in ver_file:
+        if line.startswith('__version__'):
+            version=re.sub("'", "", line[line.index("'"):])
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -56,6 +63,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}',
-    version='{{ cookiecutter.version }}',
+    version=version,
     zip_safe=False,
 )

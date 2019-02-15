@@ -99,9 +99,9 @@ install: clean ## install the package to the active Python's site-packages
 	python setup.py install
 
 dockerbuild: ## build docker image and store in local repository
-	@cv=`egrep '^\s+version=' setup.py | sed "s/^.*='//" | sed "s/'.*//"`; \
+	@cv=`grep '__version__' {{cookiecutter.project_slug}}/__init__.py | sed "s/^.*= *'//" | sed "s/'.*//"`; \
 	docker build -t {{cookiecutter.docker_owner}}/{{cookiecutter.project_slug}}:$$cv -f docker/Dockerfile .
 
 dockerpush: ## push image to dockerhub
-	@cv=`egrep '^\s+version=' setup.py | sed "s/^.*='//" | sed "s/'.*//"`; \
+	@cv=`grep '__version__' {{cookiecutter.project_slug}}/__init__.py | sed "s/^.*= *'//" | sed "s/'.*//"`; \
 	docker push {{cookiecutter.docker_owner}}/{{cookiecutter.project_slug}}:$$cv
