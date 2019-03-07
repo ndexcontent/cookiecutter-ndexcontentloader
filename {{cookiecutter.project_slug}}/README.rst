@@ -29,10 +29,100 @@
 * Documentation: https://{{ cookiecutter.project_slug | replace("_", "-") }}.readthedocs.io.
 {% endif %}
 
-Features
---------
+Tools
+-----
 
-* TODO
+* **{{ cookiecutter.loader_name }}.py** -- Loads {{ cookiecutter.data_source }} into NDEx_
+
+Dependencies
+------------
+
+* `ndex2 <https://pypi.org/project/ndex2>`_
+* `ndexutil <https://pypi.org/project/ndexutil>`_
+
+Compatibility
+-------------
+
+* Python 3.3+
+
+Installation
+------------
+
+.. code-block::
+
+   git clone https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}
+   cd {{ cookiecutter.project_slug }}
+   make dist
+   pip install dist/{{ cookiecutter.loader_name }}*whl
+
+Configuration
+-------------
+
+The **{{ cookiecutter.loader_name }}.py** requires a configuration file in the following format be created.
+The default path for this configuration is :code:`~/.ndexutils.conf` but can be overridden with
+:code:`--conf` flag.
+
+**Format of configuration file**
+
+.. code-block::
+
+    [<value in --profile (default {{ cookiecutter.project_slug }})>]
+
+    user = <NDEx username>
+    password = <NDEx password>
+    server = <NDEx server(omit http) ie public.ndexbio.org>
+    style = <NDEx UUID of network to use for styling networks created>
+
+
+The NDEx UUID needed for **style** can be obtained by uploading the :code:`style.cx` file found under
+the :code:`data/` directory of this repository. NOTE: The network needs to be uploaded to the same
+server as defined in **style** :code:`public.ndexbio.org` is NDEx_ production. Also the network needs
+to be visible to the **user**
+
+**Example configuration file**
+
+.. code-block::
+
+    [{{ cookiecutter.project_slug}}_dev]
+
+    user = joe123
+    password = somepassword123
+    server = dev.ndexbio.org
+    style = 86f63bf8-1b48-11e9-a05d-525400c25d22
+
+
+Needed files
+------------
+
+**TODO:** Add description of needed files
+
+
+Usage
+-----
+
+For information invoke :code:`{{ cookiecutter.loader_name }}.py -h`
+
+**Example usage**
+
+**TODO:** Add information about example usage
+
+.. code-block::
+
+   {{ cookiecutter.loader_name }}.py # TODO Add other needed arguments here
+
+
+Via Docker
+~~~~~~~~~~~~~~~~~~~~~~
+
+**Example usage**
+
+**TODO:** Add information about example usage
+
+
+.. code-block::
+
+   docker run -v `pwd`:`pwd` -w `pwd` {{ cookiecutter.docker_owner }}/{{ cookiecutter.project_slug }}:{{ cookiecutter.version }} {{ cookiecutter.loader_name }}.py --conf conf # TODO Add other needed arguments here
+
 
 Credits
 -------
@@ -41,3 +131,5 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _NDEx: http://www.ndexbio.org
