@@ -3,24 +3,12 @@
 language: python
 python:
   - 3.6
-  - 3.5
-  - 3.4
-  - 2.7
 
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox-travis
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
+script:
+  - coverage run --source {{cookiecutter.project_slug}} setup.py test
 
-# command to run tests, e.g. python setup.py test
-script: tox
+after_success: coveralls
 
-# deploy new versions to PyPI
-deploy:
-  provider: pypi
-  distributions: sdist bdist_wheel
-  user: audreyr
-  password:
-    secure: PLEASE_REPLACE_ME
-  on:
-    tags: true
-    repo: audreyr/python_boilerplate
-    python: 2.7
