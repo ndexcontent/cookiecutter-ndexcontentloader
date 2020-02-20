@@ -24,7 +24,7 @@ Cookiecutter 1.4.0 or higher)::
 
 Generate a Python package project::
 
-    cookiecutter https://github.com/coleslaw481/cookiecutter-ndexcontentloader.git
+    cookiecutter https://github.com/ndexcontent/cookiecutter-ndexcontentloader.git
 
 Then:
 
